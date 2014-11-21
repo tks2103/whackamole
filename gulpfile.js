@@ -6,7 +6,7 @@ var gulp    = require('gulp'),
     watch   = require('gulp-watch');
 
 var srcDir = "src/",
-    fileOrder = ["renderer.js"].map(function(filename) { return srcDir + filename; });
+    fileOrder = ["renderer.js", "state.js"].map(function(filename) { return srcDir + filename; });
 
 fileOrder.push(srcDir + "**/*.js");
 

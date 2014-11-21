@@ -1,5 +1,12 @@
 "use strict";
 
+var ENTITY_SORT_ORDER = {
+  "Board": 0,
+  "Hole": 1,
+  "Mole": 2,
+  "Text": 3
+};
+
 ;(function(exports) {
   var _idct = 0;
   function generateId() {
@@ -9,23 +16,31 @@
 
   var Mole = function(location, size, state) {
     this.location = location;
-    this.size = size;
-    this.type = "Mole";
-    this.state = state;
-    this.id = generateId();
+    this.size     = size;
+    this.type     = "Mole";
+    this.state    = state;
+    this.id       = generateId();
   };
 
   var Hole = function(location, size) {
     this.location = location;
-    this.size = size;
-    this.type = "Hole";
-    this.id = generateId();
+    this.size     = size;
+    this.type     = "Hole";
+    this.id       = generateId();
   };
 
   var Board = function() {
     this.size = { width: window.innerWidth, height: window.innerHeight };
     this.type = "Board";
-    this.id = generateId();
+    this.id   = generateId();
+  };
+
+  var Text = function(location, size, value) {
+    this.location = location;
+    this.size     = size;
+    this.type     = "Text";
+    this.value    = value;
+    this.id       = generateId();
   };
 
   var EntityManager = function() {
@@ -34,6 +49,28 @@
   };
 
   EntityManager.prototype = {
+    clearText: function() {
+      var markedForDeletion = [];
+      for(var key in this.entities) {
+        if(this.entities.hasOwnProperty(key)) {
+          var entity = this.entities[key];
+          if(entity.type == "Text") {
+            markedForDeletion.push(key);
+          }
+        }
+      }
+
+      this.batchDelete(markedForDeletion);
+    },
+
+
+    batchDelete: function(ary) {
+      ary.forEach(function(key) {
+        delete this.entities[key];
+      }.bind(this));
+    },
+
+
     holeSize: function() {
       return { width: 40, height: 40 };
     },
@@ -57,6 +94,28 @@
       this.entities[board.id] = board;
     },
 
+    generateText: function(location, size, value) {
+      var text = new Text(location, size, value);
+      this.entities[text.id] = text;
+    },
+
+    isMoleAtLocation: function(location) {
+      for(var id in this.entities) {
+        if(this.entities.hasOwnProperty(id)) {
+          var entity = this.entities[id];
+          if(entity.type === "Mole") {
+            if(location.x > entity.location.x &&
+               location.x < entity.location.x + entity.size.width &&
+               location.y > entity.location.y &&
+               location.y < entity.location.y + entity.size.height) {
+              return entity;
+            }
+          }
+        }
+      }
+      return null;
+    },
+
     entityArray: function() {
       var ary = []
       for(var key in this.entities) {
@@ -64,6 +123,17 @@
           ary.push(this.entities[key]);
         }
       }
+
+      ary.sort(function(a, b) {
+        if(ENTITY_SORT_ORDER[a.type] > ENTITY_SORT_ORDER[b.type]) {
+          return 1;
+        }
+        if(ENTITY_SORT_ORDER[a.type] < ENTITY_SORT_ORDER[b.type]) {
+          return -1;
+        }
+        return 0;
+      });
+
       return ary;
     }
   }
