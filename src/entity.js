@@ -49,6 +49,21 @@ var ENTITY_SORT_ORDER = {
   };
 
   EntityManager.prototype = {
+
+    clearMoles: function() {
+      var markedForDeletion = [];
+      for(var key in this.entities) {
+        if(this.entities.hasOwnProperty(key)) {
+          var entity = this.entities[key];
+          if(entity.type == "Mole") {
+            markedForDeletion.push(key);
+          }
+        }
+      }
+
+      this.batchDelete(markedForDeletion);
+    },
+
     clearText: function() {
       var markedForDeletion = [];
       for(var key in this.entities) {

@@ -158,6 +158,21 @@ var ENTITY_SORT_ORDER = {
   };
 
   EntityManager.prototype = {
+
+    clearMoles: function() {
+      var markedForDeletion = [];
+      for(var key in this.entities) {
+        if(this.entities.hasOwnProperty(key)) {
+          var entity = this.entities[key];
+          if(entity.type == "Mole") {
+            markedForDeletion.push(key);
+          }
+        }
+      }
+
+      this.batchDelete(markedForDeletion);
+    },
+
     clearText: function() {
       var markedForDeletion = [];
       for(var key in this.entities) {
@@ -253,6 +268,20 @@ var ENTITY_SORT_ORDER = {
 "use strict";
 
 ;(function(exports) {
+  function generateGrid(x, y) {
+    var locations = [];
+    for(var i = 0; i < x; i++) {
+      for(var j = 0; j < y; j++) {
+        locations.push({ location: generateLocation(i, j) });
+      }
+    }
+    return locations;
+  };
+
+  function generateLocation(x, y) {
+    return { x: x * 50 + 40, y: y * 50 + 40 };
+  };
+
   var Game = function(canvas, board) {
     this.renderer         = new Renderer(canvas);
     this.inputManager     = new InputManager(canvas);
@@ -261,7 +290,9 @@ var ENTITY_SORT_ORDER = {
 
     this.generateTitleText();
 
-    this.initEntities(board);
+    var holes             = generateGrid(10, 4).map(function(loc) { loc.type = "Hole"; return loc; });
+
+    this.initEntities(board.concat(holes));
   };
 
   Game.prototype = {
@@ -275,12 +306,26 @@ var ENTITY_SORT_ORDER = {
     generateNextRoundText: function() {
       this.entityManager.generateText({ x: 180, y: 250 }, 30, "GET READY!");
       this.entityManager.generateText({ x: 208, y: 270 }, 20, "here they come");
+      this.entityManager.clearMoles();
     },
 
 
     generateWhackMoleText: function() {
       this.entityManager.generateText({ x: 180, y: 250 }, 30, "WHACK 'EM!");
       this.entityManager.generateText({ x: 208, y: 270 }, 20, "doooo it");
+      this.generateMoles();
+    },
+
+    generateMoles: function() {
+      var numMoles = Math.floor(Math.random() * 4 + 3),
+          moles = [];
+
+      for(var i = 0; i < numMoles; i++) {
+        var locx = Math.floor(Math.random() * 9 + 1),
+            locy = Math.floor(Math.random() * 3  + 1);
+
+        this.entityManager.generateMole(generateLocation(locx, locy));
+      }
     },
 
 
@@ -454,21 +499,7 @@ var MOUSE_BUTTON_STATE = {
 
 "use strict";
 
-function generateGrid(x, y) {
-  var locations = [];
-  for(var i = 0; i < x; i++) {
-    for(var j = 0; j < y; j++) {
-      locations.push({ location: { x: i * 50 + 40, y: j * 50 + 40 } });
-    }
-  }
-  return locations;
-}
-
-
 var canvas    = document.getElementById("game"),
-    moles     = generateGrid(10, 4).map(function(loc) { loc.type = "Mole"; return loc; }),
-    holes     = generateGrid(10, 4).map(function(loc) { loc.type = "Hole"; return loc; }),
-    entities  = holes.concat(moles);
-var game      = new Game(canvas, entities);
+    game      = new Game(canvas, []);
 
 game.startLoop();
