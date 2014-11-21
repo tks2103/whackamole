@@ -19,10 +19,6 @@ STATE_CONTROLLER[GAME_STATE.SPAWN_MOLES] = 300;
     tick: function() {
       if(this.state === GAME_STATE.BETWEEN_ROUNDS || this.state === GAME_STATE.SPAWN_MOLES) {
         this.counter++;
-        if(this.counter >= STATE_CONTROLLER[this.state]) {
-          this.counter = 0;
-          this.incrementState();
-        }
       }
     },
 

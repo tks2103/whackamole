@@ -51,6 +51,7 @@
     },
 
     drawText: function(text) {
+      this.ctx.fillStyle = "rgb(0,0,0)";
       this.ctx.font = "" + text.size + "px Arial";
       this.ctx.fillText(text.value, text.location.x, text.location.y)
     },
