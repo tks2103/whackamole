@@ -124,6 +124,40 @@
   exports.EntityManager = EntityManager;
 })(this);
 
+"use strict";
+
+;(function(exports) {
+  var Game = function(canvas) {
+    this.renderer         = new Renderer(canvas);
+    this.inputManager     = new InputManager(canvas);
+    this.entityManager    = new EntityManager();
+  };
+
+  Game.prototype = {
+    processInput: function() {
+    },
+
+    processGame: function() {
+    },
+
+    render: function() {
+    },
+
+    loop: function() {
+      this.processInput();
+      this.processGame();
+      this.render();
+      window.requestAnimationFrame(this.loop.bind(this));
+    },
+
+    startLoop: function() {
+      window.requestAnimationFrame(this.loop.bind(this));
+    }
+  };
+
+  exports.Game = Game;
+})(this);
+
 'use strict';
 
 var RIGHT_MOUSE = 0,
@@ -169,10 +203,6 @@ var RIGHT_MOUSE = 0,
 "use strict";
 
 var canvas = document.getElementById("game"),
-    r = new Renderer(canvas),
-    em = new EntityManager(),
-    input = new InputManager(canvas);
+    game   = new Game(canvas);
 
-    em.generateHole({ x: 30, y: 30 });
-    em.generateMole({ x: 30, y: 30 });
-r.drawEntities(em.entityArray());
+game.startLoop();
