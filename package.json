@@ -1,0 +1,10 @@
+{
+  "name": "whackamole",
+  "version": "2.0.0",
+  "devDependencies": {
+    "gulp": "~3.6.1",
+    "gulp-concat": "~2.1.7",
+    "gulp-connect": "~0.3.1",
+    "gulp-watch": "^2.0.0"
+  }
+}
