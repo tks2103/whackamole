@@ -1,27 +1,9 @@
-var GAME_STATE = {
-  TITLE_SCREEN: 0,
-  BETWEEN_ROUNDS: 1,
-  SPAWN_MOLES: 2,
-  GAME_COMPLETE: 3
-};
-
-var STATE_CONTROLLER = {};
-STATE_CONTROLLER[GAME_STATE.BETWEEN_ROUNDS] = 180;
-STATE_CONTROLLER[GAME_STATE.SPAWN_MOLES] = 300;
-
 ;(function(exports) {
   var StateManager = function() {
     this.state = GAME_STATE.TITLE_SCREEN;
-    this.counter = 0;
   };
 
   StateManager.prototype = {
-    tick: function() {
-      if(this.state === GAME_STATE.BETWEEN_ROUNDS || this.state === GAME_STATE.SPAWN_MOLES) {
-        this.counter++;
-      }
-    },
-
 
     incrementState: function(completed) {
       if(completed) {

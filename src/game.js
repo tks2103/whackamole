@@ -1,5 +1,16 @@
 "use strict";
 
+var GAME_STATE = {
+  TITLE_SCREEN: 0,
+  BETWEEN_ROUNDS: 1,
+  SPAWN_MOLES: 2,
+  GAME_COMPLETE: 3
+};
+
+var STATE_CONTROLLER = {};
+STATE_CONTROLLER[GAME_STATE.BETWEEN_ROUNDS] = 180;
+STATE_CONTROLLER[GAME_STATE.SPAWN_MOLES] = 300;
+
 ;(function(exports) {
   function generateGrid(x, y) {
     var locations = [];
@@ -26,6 +37,8 @@
     var holes             = generateGrid(10, 4).map(function(loc) { loc.type = "Hole"; return loc; });
 
     this.initEntities(board.concat(holes));
+    this.score = 0;
+    this.counter = 0;
   };
 
   Game.prototype = {
@@ -39,14 +52,12 @@
     generateNextRoundText: function() {
       this.entityManager.generateText({ x: 180, y: 250 }, 30, "GET READY!");
       this.entityManager.generateText({ x: 208, y: 270 }, 20, "here they come");
-      this.entityManager.clearMoles();
     },
 
 
     generateWhackMoleText: function() {
       this.entityManager.generateText({ x: 180, y: 250 }, 30, "WHACK 'EM!");
       this.entityManager.generateText({ x: 208, y: 270 }, 20, "doooo it");
-      this.generateMoles();
     },
 
     generateMoles: function() {
@@ -67,8 +78,9 @@
         var pos = this.inputManager.getMousePosition(),
             mole = this.entityManager.isMoleAtLocation(pos);
 
-        if(mole !== null) {
-          mole.state = (mole.state === 1 ? 0 : 1);
+        if(mole !== null && mole.state !== 1) {
+          mole.state = 1;
+          this.score += 1;
         }
       }
     },
@@ -87,15 +99,15 @@
 
     detectTimedStateChange: function(callback) {
       if(this.stateManager.counter > STATE_CONTROLLER[this.stateManager.state]) {
-        this.stateManager.counter = 0;
-        this.stateManager.incrementState();
-        this.entityManager.clearText();
         callback();
       }
     },
 
 
     processGame: function() {
+      if(this.stateManager.state == GAME_STATE.SPAWN_MOLES || this.stateManager.state == GAME_STATE.BETWEEN_ROUNDS) {
+        this.counter++;
+      }
       if(this.stateManager.state == GAME_STATE.TITLE_SCREEN) {
         if(this.inputManager.isLeftReleased()) {
           this.stateManager.incrementState();
@@ -103,13 +115,24 @@
           this.generateNextRoundText();
         }
       } else if(this.stateManager.state == GAME_STATE.BETWEEN_ROUNDS) {
-        this.detectTimedStateChange(this.generateWhackMoleText.bind(this));
+        if(this.counter >= STATE_CONTROLLER[this.stateManager.state]) {
+          this.counter = 0;
+          this.stateManager.incrementState();
+          this.entityManager.clearText();
+          this.generateWhackMoleText();
+          this.generateMoles();
+        }
       } else if(this.stateManager.state == GAME_STATE.SPAWN_MOLES) {
         this.detectMoleClick();
-        this.detectTimedStateChange(this.generateNextRoundText.bind(this));
+        if(this.counter >= STATE_CONTROLLER[this.stateManager.state]) {
+          this.counter = 0;
+          this.stateManager.incrementState();
+          this.entityManager.clearText();
+          this.generateNextRoundText();
+          this.entityManager.clearMoles();
+        }
       }
       this.inputManager.tick();
-      this.stateManager.tick();
     },
 
 
