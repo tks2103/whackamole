@@ -346,13 +346,6 @@ STATE_CONTROLLER[GAME_STATE.SPAWN_MOLES] = 300;
     },
 
 
-    detectTimedStateChange: function(callback) {
-      if(this.stateManager.counter > STATE_CONTROLLER[this.stateManager.state]) {
-        callback();
-      }
-    },
-
-
     processGame: function() {
       if(this.stateManager.state == GAME_STATE.SPAWN_MOLES || this.stateManager.state == GAME_STATE.BETWEEN_ROUNDS) {
         this.counter++;
