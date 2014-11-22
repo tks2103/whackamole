@@ -80,8 +80,8 @@
         this.state = GAME_STATE.SPAWN_MOLES;
       } else if (this.state === GAME_STATE.SPAWN_MOLES) {
         this.state = GAME_STATE.BETWEEN_ROUNDS;
-      } else {
-        this.state = GAME_STATE.TITLE_SCREEN;
+      } else if (this.state === GAME_STATE.GAME_COMPLETE) {
+        this.state = GAME_STATE.BETWEEN_ROUNDS;
       }
     }
   };
@@ -257,10 +257,25 @@ var GAME_STATE = {
 };
 
 var STATE_CONTROLLER = {};
-STATE_CONTROLLER[GAME_STATE.BETWEEN_ROUNDS] = 180;
-STATE_CONTROLLER[GAME_STATE.SPAWN_MOLES] = 300;
+STATE_CONTROLLER[GAME_STATE.BETWEEN_ROUNDS] = 120;
+STATE_CONTROLLER[GAME_STATE.SPAWN_MOLES] = 120;
+
+var XGRID = 10, YGRID = 4;
 
 ;(function(exports) {
+
+  function cartesianProduct(ary1, ary2) {
+    var ary3 = []
+    for(var i = 0; i < ary1.length; i++) {
+      for(var j = 0; j < ary2.length; j++) {
+        ary3.push([i,j]);
+      }
+    }
+    return ary3;
+  }
+
+  function generateArray(n) { return Array.apply(null, Array(n)).map(function(i, d) { return d; }) }
+
   function generateGrid(x, y) {
     var locations = [];
     for(var i = 0; i < x; i++) {
@@ -283,11 +298,12 @@ STATE_CONTROLLER[GAME_STATE.SPAWN_MOLES] = 300;
 
     this.generateTitleText();
 
-    var holes             = generateGrid(10, 4).map(function(loc) { loc.type = "Hole"; return loc; });
+    var holes             = generateGrid(XGRID, YGRID).map(function(loc) { loc.type = "Hole"; return loc; });
 
     this.initEntities(board.concat(holes));
-    this.score = 0;
+    this.score   = 0;
     this.counter = 0;
+    this.round   = 0;
   };
 
   Game.prototype = {
@@ -309,15 +325,25 @@ STATE_CONTROLLER[GAME_STATE.SPAWN_MOLES] = 300;
       this.entityManager.generateText({ x: 208, y: 270 }, 20, "doooo it");
     },
 
+
+    generateCompletedText: function() {
+      this.entityManager.generateText({ x: 60, y: 250 }, 30, "GAME OVER! YOUR SCORE: " + this.score);
+      this.entityManager.generateText({ x: 208, y: 270 }, 20, "click to try again!");
+    },
+
+
     generateMoles: function() {
       var numMoles = Math.floor(Math.random() * 4 + 3),
           moles = [];
 
-      for(var i = 0; i < numMoles; i++) {
-        var locx = Math.floor(Math.random() * 9 + 1),
-            locy = Math.floor(Math.random() * 3  + 1);
+      var locxs = generateArray(XGRID), locys = generateArray(YGRID), locs = cartesianProduct(locxs, locys);
 
-        this.entityManager.generateMole(generateLocation(locx, locy));
+      for(var i = 0; i < numMoles; i++) {
+        var aryPos  = Math.floor(Math.random() * locs.length),
+            loc     = locs[aryPos];
+
+            locs.splice(aryPos, 1);
+        this.entityManager.generateMole(generateLocation(loc[0], loc[1]));
       }
     },
 
@@ -368,10 +394,24 @@ STATE_CONTROLLER[GAME_STATE.SPAWN_MOLES] = 300;
         this.detectMoleClick();
         if(this.counter >= STATE_CONTROLLER[this.stateManager.state]) {
           this.counter = 0;
+          this.entityManager.clearText();
+          this.entityManager.clearMoles();
+          this.round += 1;
+          if(this.round > 2) {
+            this.stateManager.incrementState(true);
+            this.generateCompletedText();
+          } else {
+            this.stateManager.incrementState();
+            this.generateNextRoundText();
+          }
+        }
+      } else if(this.stateManager.state == GAME_STATE.GAME_COMPLETE) {
+        if(this.inputManager.isLeftReleased()) {
           this.stateManager.incrementState();
           this.entityManager.clearText();
           this.generateNextRoundText();
-          this.entityManager.clearMoles();
+          this.score = 0;
+          this.round = 0;
         }
       }
       this.inputManager.tick();

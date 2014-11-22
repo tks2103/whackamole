@@ -14,8 +14,8 @@
         this.state = GAME_STATE.SPAWN_MOLES;
       } else if (this.state === GAME_STATE.SPAWN_MOLES) {
         this.state = GAME_STATE.BETWEEN_ROUNDS;
-      } else {
-        this.state = GAME_STATE.TITLE_SCREEN;
+      } else if (this.state === GAME_STATE.GAME_COMPLETE) {
+        this.state = GAME_STATE.BETWEEN_ROUNDS;
       }
     }
   };
