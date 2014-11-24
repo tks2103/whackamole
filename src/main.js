@@ -1,6 +1,10 @@
 "use strict";
 
 var canvas    = document.getElementById("game"),
-    game      = new Game(canvas, []);
+    imgLoader = new ImageLoader();
 
-game.startLoop();
+imgLoader.loaded = function() {
+  var game = new Game(canvas, [], imgLoader.images);
+  game.startLoop();
+}.bind(this);
+imgLoader.loadImages();

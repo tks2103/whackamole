@@ -1,11 +1,12 @@
 "use strict";
 
 ;(function(exports) {
-  var Renderer = function(canvas) {
+  var Renderer = function(canvas, images) {
     this.canvas = canvas;
+    this.images = images;
     this.ctx    = canvas.getContext('2d');
-    this.canvas.width       = 540;
-    this.canvas.height      = 290;
+    this.canvas.width       = 800;
+    this.canvas.height      = 450;
     this.canvas.offsetLeft  = 0;
     this.canvas.offsetTop   = 0;
   };
@@ -28,26 +29,33 @@
     },
 
     drawBoard: function(board) {
-      this.ctx.fillStyle = "rgb(128,128,0)";
-      this.ctx.fillRect(0, 0, board.size.width, board.size.height);
+      var image = this.images["Fields.png"];
+      this.ctx.drawImage(image, 0, 0, board.size.width, board.size.height);
     },
 
     drawMole: function(mole) {
+      var image;
       if(mole.state === 1) {
-        this.ctx.fillStyle = "rgb(255,0,0)";
+        image = this.images["Mole_Hit.png"];
       } else {
-        this.ctx.fillStyle = "rgb(255,0,255)";
+        image = this.images["Mole_Normal.png"];
       }
-      this.ctx.fillRect(mole.location.x - mole.size.width / 2,
-                        mole.location.y - mole.size.height / 2,
-                        mole.size.width, mole.size.height);
+      var width = mole.size.width,
+          height = mole.size.height;
+      this.ctx.drawImage(image, mole.location.x - width / 2, mole.location.y - height / 2, width, height);
     },
 
     drawHole: function(hole) {
-      this.ctx.fillStyle = "rgb(0,255,255)";
-      this.ctx.fillRect(hole.location.x - hole.size.width / 2,
-                        hole.location.y - hole.size.height / 2,
-                        hole.size.width, hole.size.height);
+      var holeImg = this.images["Mole_Hole.png"],
+          mudImg = this.images["Mole_Hole_Mud.png"];
+      this.ctx.drawImage(holeImg,
+                         hole.location.x - hole.size.width / 2,
+                         hole.location.y + hole.size.height / 2 - hole.size.height / 4 + 5,
+                         hole.size.width, hole.size.height / 4);
+      this.ctx.drawImage(mudImg,
+                         hole.location.x - hole.size.width / 2,
+                         hole.location.y + hole.size.height / 2 - hole.size.height / 5 + 5,
+                         hole.size.width, hole.size.height / 5);
     },
 
     drawText: function(text) {
@@ -93,8 +101,8 @@
 
 var ENTITY_SORT_ORDER = {
   "Board": 0,
-  "Hole": 1,
-  "Mole": 2,
+  "Mole": 1,
+  "Hole": 2,
   "Text": 3
 };
 
@@ -178,11 +186,11 @@ var ENTITY_SORT_ORDER = {
 
 
     holeSize: function() {
-      return { width: 40, height: 40 };
+      return { width: 60, height: 60 };
     },
 
     moleSize: function() {
-      return { width: 30, height: 30 };
+      return { width: 75, height: 75 };
     },
 
     generateHole: function(location) {
@@ -210,10 +218,10 @@ var ENTITY_SORT_ORDER = {
         if(this.entities.hasOwnProperty(id)) {
           var entity = this.entities[id];
           if(entity.type === "Mole") {
-            if(location.x > entity.location.x &&
-               location.x < entity.location.x + entity.size.width &&
-               location.y > entity.location.y &&
-               location.y < entity.location.y + entity.size.height) {
+            if(location.x > entity.location.x - entity.size.width / 2 &&
+               location.x < entity.location.x + entity.size.width / 2 &&
+               location.y > entity.location.y - entity.size.height / 2 &&
+               location.y < entity.location.y + entity.size.height / 2) {
               return entity;
             }
           }
@@ -257,10 +265,10 @@ var GAME_STATE = {
 };
 
 var STATE_CONTROLLER = {};
-STATE_CONTROLLER[GAME_STATE.BETWEEN_ROUNDS] = 120;
-STATE_CONTROLLER[GAME_STATE.SPAWN_MOLES] = 120;
+STATE_CONTROLLER[GAME_STATE.BETWEEN_ROUNDS] = 20;
+STATE_CONTROLLER[GAME_STATE.SPAWN_MOLES] = 180;
 
-var XGRID = 10, YGRID = 4;
+var XGRID = 9, YGRID = 4;
 
 ;(function(exports) {
 
@@ -287,11 +295,11 @@ var XGRID = 10, YGRID = 4;
   };
 
   function generateLocation(x, y) {
-    return { x: x * 50 + 40, y: y * 50 + 40 };
+    return { x: x * 80 + 70, y: y * 80 + 90 };
   };
 
-  var Game = function(canvas, board) {
-    this.renderer         = new Renderer(canvas);
+  var Game = function(canvas, board, images) {
+    this.renderer         = new Renderer(canvas, images);
     this.inputManager     = new InputManager(canvas);
     this.entityManager    = new EntityManager();
     this.stateManager     = new StateManager();
@@ -309,26 +317,26 @@ var XGRID = 10, YGRID = 4;
   Game.prototype = {
 
     generateTitleText: function() {
-      this.entityManager.generateText({ x: 110, y: 250 }, 30, "WHACK THAT MOLE!");
-      this.entityManager.generateText({ x: 208, y: 270 }, 20, "click to start");
+      this.entityManager.generateText({ x: 110, y: 400 }, 30, "WHACK THAT MOLE!");
+      this.entityManager.generateText({ x: 208, y: 420 }, 20, "click to start");
     },
 
 
     generateNextRoundText: function() {
-      this.entityManager.generateText({ x: 180, y: 250 }, 30, "GET READY!");
-      this.entityManager.generateText({ x: 208, y: 270 }, 20, "here they come");
+      this.entityManager.generateText({ x: 180, y: 400 }, 30, "GET READY!");
+      this.entityManager.generateText({ x: 208, y: 420 }, 20, "here they come");
     },
 
 
     generateWhackMoleText: function() {
-      this.entityManager.generateText({ x: 180, y: 250 }, 30, "WHACK 'EM!");
-      this.entityManager.generateText({ x: 208, y: 270 }, 20, "doooo it");
+      this.entityManager.generateText({ x: 180, y: 400 }, 30, "WHACK 'EM!");
+      this.entityManager.generateText({ x: 208, y: 420 }, 20, "doooo it");
     },
 
 
     generateCompletedText: function() {
-      this.entityManager.generateText({ x: 60, y: 250 }, 30, "GAME OVER! YOUR SCORE: " + this.score);
-      this.entityManager.generateText({ x: 208, y: 270 }, 20, "click to try again!");
+      this.entityManager.generateText({ x: 60, y: 400 }, 30, "GAME OVER! YOUR SCORE: " + this.score);
+      this.entityManager.generateText({ x: 208, y: 420 }, 20, "click to try again!");
     },
 
 
@@ -441,6 +449,55 @@ var XGRID = 10, YGRID = 4;
 
 'use strict';
 
+var images = [
+  "Fields.png",
+  "Mole_Hit.png",
+  "Mole_Hole_Mud.png",
+  "Mole_Hole.png",
+  "Mole_Normal.png"
+];
+
+;(function(exports) {
+  var ImageLoader = function() {
+    this.images = {};
+    this.loaded = null;
+  };
+
+  ImageLoader.prototype = {
+    loadImages: function() {
+      var that = this;
+
+      images.forEach(function(img) {
+        var image = new Image();
+        image.onload = function() {
+          that.images[img] = image;
+          that.checkLoaded();
+        };
+        image.src = "img/" + img;
+      }.bind(this));
+    },
+
+
+    checkLoaded: function() {
+      var ct = 0;
+      for(var key in this.images) {
+        if(this.images.hasOwnProperty(key)) {
+          ct++;
+        }
+      }
+      if(ct == images.length) {
+        if(this.loaded !== null) {
+          this.loaded();
+        }
+      }
+    }
+  };
+
+  exports.ImageLoader = ImageLoader;
+})(this);
+
+'use strict';
+
 var RIGHT_MOUSE = 0,
     LEFT_MOUSE  = 1;
 
@@ -538,6 +595,10 @@ var MOUSE_BUTTON_STATE = {
 "use strict";
 
 var canvas    = document.getElementById("game"),
-    game      = new Game(canvas, []);
+    imgLoader = new ImageLoader();
 
-game.startLoop();
+imgLoader.loaded = function() {
+  var game = new Game(canvas, [], imgLoader.images);
+  game.startLoop();
+}.bind(this);
+imgLoader.loadImages();

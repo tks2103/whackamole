@@ -8,10 +8,10 @@ var GAME_STATE = {
 };
 
 var STATE_CONTROLLER = {};
-STATE_CONTROLLER[GAME_STATE.BETWEEN_ROUNDS] = 120;
-STATE_CONTROLLER[GAME_STATE.SPAWN_MOLES] = 120;
+STATE_CONTROLLER[GAME_STATE.BETWEEN_ROUNDS] = 20;
+STATE_CONTROLLER[GAME_STATE.SPAWN_MOLES] = 180;
 
-var XGRID = 10, YGRID = 4;
+var XGRID = 9, YGRID = 4;
 
 ;(function(exports) {
 
@@ -38,11 +38,11 @@ var XGRID = 10, YGRID = 4;
   };
 
   function generateLocation(x, y) {
-    return { x: x * 50 + 40, y: y * 50 + 40 };
+    return { x: x * 80 + 70, y: y * 80 + 90 };
   };
 
-  var Game = function(canvas, board) {
-    this.renderer         = new Renderer(canvas);
+  var Game = function(canvas, board, images) {
+    this.renderer         = new Renderer(canvas, images);
     this.inputManager     = new InputManager(canvas);
     this.entityManager    = new EntityManager();
     this.stateManager     = new StateManager();
@@ -60,26 +60,26 @@ var XGRID = 10, YGRID = 4;
   Game.prototype = {
 
     generateTitleText: function() {
-      this.entityManager.generateText({ x: 110, y: 250 }, 30, "WHACK THAT MOLE!");
-      this.entityManager.generateText({ x: 208, y: 270 }, 20, "click to start");
+      this.entityManager.generateText({ x: 110, y: 400 }, 30, "WHACK THAT MOLE!");
+      this.entityManager.generateText({ x: 208, y: 420 }, 20, "click to start");
     },
 
 
     generateNextRoundText: function() {
-      this.entityManager.generateText({ x: 180, y: 250 }, 30, "GET READY!");
-      this.entityManager.generateText({ x: 208, y: 270 }, 20, "here they come");
+      this.entityManager.generateText({ x: 180, y: 400 }, 30, "GET READY!");
+      this.entityManager.generateText({ x: 208, y: 420 }, 20, "here they come");
     },
 
 
     generateWhackMoleText: function() {
-      this.entityManager.generateText({ x: 180, y: 250 }, 30, "WHACK 'EM!");
-      this.entityManager.generateText({ x: 208, y: 270 }, 20, "doooo it");
+      this.entityManager.generateText({ x: 180, y: 400 }, 30, "WHACK 'EM!");
+      this.entityManager.generateText({ x: 208, y: 420 }, 20, "doooo it");
     },
 
 
     generateCompletedText: function() {
-      this.entityManager.generateText({ x: 60, y: 250 }, 30, "GAME OVER! YOUR SCORE: " + this.score);
-      this.entityManager.generateText({ x: 208, y: 270 }, 20, "click to try again!");
+      this.entityManager.generateText({ x: 60, y: 400 }, 30, "GAME OVER! YOUR SCORE: " + this.score);
+      this.entityManager.generateText({ x: 208, y: 420 }, 20, "click to try again!");
     },
 
 

@@ -2,8 +2,8 @@
 
 var ENTITY_SORT_ORDER = {
   "Board": 0,
-  "Hole": 1,
-  "Mole": 2,
+  "Mole": 1,
+  "Hole": 2,
   "Text": 3
 };
 
@@ -87,11 +87,11 @@ var ENTITY_SORT_ORDER = {
 
 
     holeSize: function() {
-      return { width: 40, height: 40 };
+      return { width: 60, height: 60 };
     },
 
     moleSize: function() {
-      return { width: 30, height: 30 };
+      return { width: 75, height: 75 };
     },
 
     generateHole: function(location) {
@@ -119,10 +119,10 @@ var ENTITY_SORT_ORDER = {
         if(this.entities.hasOwnProperty(id)) {
           var entity = this.entities[id];
           if(entity.type === "Mole") {
-            if(location.x > entity.location.x &&
-               location.x < entity.location.x + entity.size.width &&
-               location.y > entity.location.y &&
-               location.y < entity.location.y + entity.size.height) {
+            if(location.x > entity.location.x - entity.size.width / 2 &&
+               location.x < entity.location.x + entity.size.width / 2 &&
+               location.y > entity.location.y - entity.size.height / 2 &&
+               location.y < entity.location.y + entity.size.height / 2) {
               return entity;
             }
           }

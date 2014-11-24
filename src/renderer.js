@@ -1,11 +1,12 @@
 "use strict";
 
 ;(function(exports) {
-  var Renderer = function(canvas) {
+  var Renderer = function(canvas, images) {
     this.canvas = canvas;
+    this.images = images;
     this.ctx    = canvas.getContext('2d');
-    this.canvas.width       = 540;
-    this.canvas.height      = 290;
+    this.canvas.width       = 800;
+    this.canvas.height      = 450;
     this.canvas.offsetLeft  = 0;
     this.canvas.offsetTop   = 0;
   };
@@ -28,26 +29,33 @@
     },
 
     drawBoard: function(board) {
-      this.ctx.fillStyle = "rgb(128,128,0)";
-      this.ctx.fillRect(0, 0, board.size.width, board.size.height);
+      var image = this.images["Fields.png"];
+      this.ctx.drawImage(image, 0, 0, board.size.width, board.size.height);
     },
 
     drawMole: function(mole) {
+      var image;
       if(mole.state === 1) {
-        this.ctx.fillStyle = "rgb(255,0,0)";
+        image = this.images["Mole_Hit.png"];
       } else {
-        this.ctx.fillStyle = "rgb(255,0,255)";
+        image = this.images["Mole_Normal.png"];
       }
-      this.ctx.fillRect(mole.location.x - mole.size.width / 2,
-                        mole.location.y - mole.size.height / 2,
-                        mole.size.width, mole.size.height);
+      var width = mole.size.width,
+          height = mole.size.height;
+      this.ctx.drawImage(image, mole.location.x - width / 2, mole.location.y - height / 2, width, height);
     },
 
     drawHole: function(hole) {
-      this.ctx.fillStyle = "rgb(0,255,255)";
-      this.ctx.fillRect(hole.location.x - hole.size.width / 2,
-                        hole.location.y - hole.size.height / 2,
-                        hole.size.width, hole.size.height);
+      var holeImg = this.images["Mole_Hole.png"],
+          mudImg = this.images["Mole_Hole_Mud.png"];
+      this.ctx.drawImage(holeImg,
+                         hole.location.x - hole.size.width / 2,
+                         hole.location.y + hole.size.height / 2 - hole.size.height / 4 + 5,
+                         hole.size.width, hole.size.height / 4);
+      this.ctx.drawImage(mudImg,
+                         hole.location.x - hole.size.width / 2,
+                         hole.location.y + hole.size.height / 2 - hole.size.height / 5 + 5,
+                         hole.size.width, hole.size.height / 5);
     },
 
     drawText: function(text) {
