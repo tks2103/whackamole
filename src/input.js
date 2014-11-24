@@ -32,8 +32,8 @@ var MOUSE_BUTTON_STATE = {
     } else if (e.clientX) {
       mousePosition = { x: e.clientX, y: e.clientY };
     }
-    mousePosition.x += canvas.offsetLeft;
-    mousePosition.y += canvas.offsetTop;
+    mousePosition.x -= canvas.offsetLeft;
+    mousePosition.y -= canvas.offsetTop;
     return mousePosition;
   }
 

@@ -9,8 +9,6 @@ var WIDTH = 800, HEIGHT = 500;
     this.ctx    = canvas.getContext('2d');
     this.canvas.width       = WIDTH;
     this.canvas.height      = HEIGHT;
-    this.canvas.offsetLeft  = 0;
-    this.canvas.offsetTop   = 0;
   };
 
   Renderer.prototype = {
@@ -575,8 +573,8 @@ var MOUSE_BUTTON_STATE = {
     } else if (e.clientX) {
       mousePosition = { x: e.clientX, y: e.clientY };
     }
-    mousePosition.x += canvas.offsetLeft;
-    mousePosition.y += canvas.offsetTop;
+    mousePosition.x -= canvas.offsetLeft;
+    mousePosition.y -= canvas.offsetTop;
     return mousePosition;
   }
 
