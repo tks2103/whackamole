@@ -2,6 +2,8 @@ Simple Whack-A-Mole game!
 
 # Installation
 
+This project used the gulp build system. npm install gulp -g if you do not have it.
+
 1. Clone Repo
 2. npm install from repo root
 3. gulp build
