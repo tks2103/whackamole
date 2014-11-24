@@ -68,8 +68,9 @@ var WIDTH = 800, HEIGHT = 500;
     },
 
     drawText: function(text) {
-      var image = this.images[text.value];
-      this.ctx.drawImage(image, WIDTH / 2 - image.width / 2, HEIGHT - 110);
+      this.ctx.fillStyle = "rgb(0,0,0)";
+      this.ctx.font = "" + text.size + "px Arial";
+      this.ctx.fillText(text.value, text.location.x, text.location.y)
     },
 
     clear: function() {

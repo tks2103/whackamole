@@ -68,8 +68,9 @@ var WIDTH = 800, HEIGHT = 500;
     },
 
     drawText: function(text) {
-      var image = this.images[text.value];
-      this.ctx.drawImage(image, WIDTH / 2 - image.width / 2, HEIGHT - 110);
+      this.ctx.fillStyle = "rgb(0,0,0)";
+      this.ctx.font = "" + text.size + "px Arial";
+      this.ctx.fillText(text.value, text.location.x, text.location.y)
     },
 
     clear: function() {
@@ -179,6 +180,20 @@ var ENTITY_SORT_ORDER = {
     },
 
     clearText: function() {
+      var markedForDeletion = [];
+      for(var key in this.entities) {
+        if(this.entities.hasOwnProperty(key)) {
+          var entity = this.entities[key];
+          if(entity.type == "Text") {
+            markedForDeletion.push(key);
+          }
+        }
+      }
+
+      this.batchDelete(markedForDeletion);
+    },
+
+    clearAllText: function() {
       var markedForDeletion = [];
       for(var key in this.entities) {
         if(this.entities.hasOwnProperty(key)) {
@@ -356,6 +371,11 @@ var XGRID = 9, YGRID = 4;
     },
 
 
+    generateScoreText: function() {
+      this.entityManager.generateText({ x: 15, y: 35 }, 20, "Score: " + this.score);
+    },
+
+
     generateMoles: function() {
       var numMoles = Math.floor(Math.random() * 4 + 3),
           moles = [];
@@ -380,6 +400,8 @@ var XGRID = 9, YGRID = 4;
         if(mole !== null && mole.state !== 1) {
           mole.state = 1;
           this.score += 1;
+          this.entityManager.clearText();
+          this.generateScoreText();
         }
       }
     },
@@ -403,23 +425,26 @@ var XGRID = 9, YGRID = 4;
       if(this.stateManager.state == GAME_STATE.TITLE_SCREEN) {
         if(this.inputManager.isLeftReleased()) {
           this.stateManager.incrementState();
-          this.entityManager.clearText();
+          this.entityManager.clearAllText();
           this.generateNextRoundText();
+          this.generateScoreText();
         }
       } else if(this.stateManager.state == GAME_STATE.BETWEEN_ROUNDS) {
         if(this.counter >= STATE_CONTROLLER[this.stateManager.state]) {
           this.counter = 0;
           this.stateManager.incrementState();
-          this.entityManager.clearText();
+          this.entityManager.clearAllText();
           this.generateWhackMoleText();
           this.generateMoles();
+          this.generateScoreText();
         }
       } else if(this.stateManager.state == GAME_STATE.SPAWN_MOLES) {
         this.detectMoleClick();
         if(this.counter >= STATE_CONTROLLER[this.stateManager.state]) {
           this.counter = 0;
-          this.entityManager.clearText();
+          this.entityManager.clearAllText();
           this.entityManager.clearMoles();
+          this.generateScoreText();
           this.round += 1;
           if(this.round > 2) {
             this.stateManager.incrementState(true);
@@ -432,10 +457,11 @@ var XGRID = 9, YGRID = 4;
       } else if(this.stateManager.state == GAME_STATE.GAME_COMPLETE) {
         if(this.inputManager.isLeftReleased()) {
           this.stateManager.incrementState();
-          this.entityManager.clearText();
+          this.entityManager.clearAllText();
           this.generateNextRoundText();
           this.score = 0;
           this.round = 0;
+          this.generateScoreText();
         }
       }
       this.inputManager.tick();
@@ -450,7 +476,6 @@ var XGRID = 9, YGRID = 4;
     loop: function() {
       this.processGame();
       this.render();
-      console.log(this.stateManager.state);
       window.requestAnimationFrame(this.loop.bind(this));
     },
 

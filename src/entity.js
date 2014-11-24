@@ -76,6 +76,20 @@ var ENTITY_SORT_ORDER = {
       for(var key in this.entities) {
         if(this.entities.hasOwnProperty(key)) {
           var entity = this.entities[key];
+          if(entity.type == "Text") {
+            markedForDeletion.push(key);
+          }
+        }
+      }
+
+      this.batchDelete(markedForDeletion);
+    },
+
+    clearAllText: function() {
+      var markedForDeletion = [];
+      for(var key in this.entities) {
+        if(this.entities.hasOwnProperty(key)) {
+          var entity = this.entities[key];
           if(entity.type == "Text" || entity.type == "TextImg") {
             markedForDeletion.push(key);
           }
