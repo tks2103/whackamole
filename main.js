@@ -1,12 +1,14 @@
 "use strict";
 
+var WIDTH = 800, HEIGHT = 500;
+
 ;(function(exports) {
   var Renderer = function(canvas, images) {
     this.canvas = canvas;
     this.images = images;
     this.ctx    = canvas.getContext('2d');
-    this.canvas.width       = 800;
-    this.canvas.height      = 450;
+    this.canvas.width       = WIDTH;
+    this.canvas.height      = HEIGHT;
     this.canvas.offsetLeft  = 0;
     this.canvas.offsetTop   = 0;
   };
@@ -22,6 +24,8 @@
           this.drawMole(entity);
         } else if(entity.type === "Text") {
           this.drawText(entity);
+        } else if(entity.type === "TextImg") {
+          this.drawTextImg(entity);
         } else {
           throw "Invalid Entity Type";
         }
@@ -58,10 +62,14 @@
                          hole.size.width, hole.size.height / 5);
     },
 
+    drawTextImg: function(textImg) {
+      var image = this.images[textImg.value];
+      this.ctx.drawImage(image, WIDTH / 2 - image.width / 2, HEIGHT - 110);
+    },
+
     drawText: function(text) {
-      this.ctx.fillStyle = "rgb(0,0,0)";
-      this.ctx.font = "" + text.size + "px Arial";
-      this.ctx.fillText(text.value, text.location.x, text.location.y)
+      var image = this.images[text.value];
+      this.ctx.drawImage(image, WIDTH / 2 - image.width / 2, HEIGHT - 110);
     },
 
     clear: function() {
@@ -100,10 +108,11 @@
 "use strict";
 
 var ENTITY_SORT_ORDER = {
-  "Board": 0,
-  "Mole": 1,
-  "Hole": 2,
-  "Text": 3
+  "Board":    0,
+  "Mole":     1,
+  "Hole":     2,
+  "Text":     3,
+  "TextImg":  4
 };
 
 ;(function(exports) {
@@ -142,6 +151,12 @@ var ENTITY_SORT_ORDER = {
     this.id       = generateId();
   };
 
+  var TextImg = function(value) {
+    this.value  = value;
+    this.type   = "TextImg";
+    this.id     = generateId();
+  };
+
   var EntityManager = function() {
     this.entities = {};
     this.generateBoard();
@@ -168,7 +183,7 @@ var ENTITY_SORT_ORDER = {
       for(var key in this.entities) {
         if(this.entities.hasOwnProperty(key)) {
           var entity = this.entities[key];
-          if(entity.type == "Text") {
+          if(entity.type == "Text" || entity.type == "TextImg") {
             markedForDeletion.push(key);
           }
         }
@@ -210,6 +225,11 @@ var ENTITY_SORT_ORDER = {
 
     generateText: function(location, size, value) {
       var text = new Text(location, size, value);
+      this.entities[text.id] = text;
+    },
+
+    generateTextImg: function(value) {
+      var text = new TextImg(value);
       this.entities[text.id] = text;
     },
 
@@ -265,7 +285,7 @@ var GAME_STATE = {
 };
 
 var STATE_CONTROLLER = {};
-STATE_CONTROLLER[GAME_STATE.BETWEEN_ROUNDS] = 20;
+STATE_CONTROLLER[GAME_STATE.BETWEEN_ROUNDS] = 120;
 STATE_CONTROLLER[GAME_STATE.SPAWN_MOLES] = 180;
 
 var XGRID = 9, YGRID = 4;
@@ -317,26 +337,22 @@ var XGRID = 9, YGRID = 4;
   Game.prototype = {
 
     generateTitleText: function() {
-      this.entityManager.generateText({ x: 110, y: 400 }, 30, "WHACK THAT MOLE!");
-      this.entityManager.generateText({ x: 208, y: 420 }, 20, "click to start");
+      this.entityManager.generateTextImg("WhackAMoleText.png");
     },
 
 
     generateNextRoundText: function() {
-      this.entityManager.generateText({ x: 180, y: 400 }, 30, "GET READY!");
-      this.entityManager.generateText({ x: 208, y: 420 }, 20, "here they come");
+      this.entityManager.generateTextImg("GetReadyText.png");
     },
 
 
     generateWhackMoleText: function() {
-      this.entityManager.generateText({ x: 180, y: 400 }, 30, "WHACK 'EM!");
-      this.entityManager.generateText({ x: 208, y: 420 }, 20, "doooo it");
+      this.entityManager.generateTextImg("WhackEmText.png");
     },
 
 
     generateCompletedText: function() {
-      this.entityManager.generateText({ x: 60, y: 400 }, 30, "GAME OVER! YOUR SCORE: " + this.score);
-      this.entityManager.generateText({ x: 208, y: 420 }, 20, "click to try again!");
+      this.entityManager.generateTextImg("GameOverText.png");
     },
 
 
@@ -454,7 +470,11 @@ var images = [
   "Mole_Hit.png",
   "Mole_Hole_Mud.png",
   "Mole_Hole.png",
-  "Mole_Normal.png"
+  "Mole_Normal.png",
+  "WhackAMoleText.png",
+  "GetReadyText.png",
+  "WhackEmText.png",
+  "GameOverText.png"
 ];
 
 ;(function(exports) {

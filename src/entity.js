@@ -1,10 +1,11 @@
 "use strict";
 
 var ENTITY_SORT_ORDER = {
-  "Board": 0,
-  "Mole": 1,
-  "Hole": 2,
-  "Text": 3
+  "Board":    0,
+  "Mole":     1,
+  "Hole":     2,
+  "Text":     3,
+  "TextImg":  4
 };
 
 ;(function(exports) {
@@ -43,6 +44,12 @@ var ENTITY_SORT_ORDER = {
     this.id       = generateId();
   };
 
+  var TextImg = function(value) {
+    this.value  = value;
+    this.type   = "TextImg";
+    this.id     = generateId();
+  };
+
   var EntityManager = function() {
     this.entities = {};
     this.generateBoard();
@@ -69,7 +76,7 @@ var ENTITY_SORT_ORDER = {
       for(var key in this.entities) {
         if(this.entities.hasOwnProperty(key)) {
           var entity = this.entities[key];
-          if(entity.type == "Text") {
+          if(entity.type == "Text" || entity.type == "TextImg") {
             markedForDeletion.push(key);
           }
         }
@@ -111,6 +118,11 @@ var ENTITY_SORT_ORDER = {
 
     generateText: function(location, size, value) {
       var text = new Text(location, size, value);
+      this.entities[text.id] = text;
+    },
+
+    generateTextImg: function(value) {
+      var text = new TextImg(value);
       this.entities[text.id] = text;
     },
 

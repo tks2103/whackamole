@@ -5,7 +5,11 @@ var images = [
   "Mole_Hit.png",
   "Mole_Hole_Mud.png",
   "Mole_Hole.png",
-  "Mole_Normal.png"
+  "Mole_Normal.png",
+  "WhackAMoleText.png",
+  "GetReadyText.png",
+  "WhackEmText.png",
+  "GameOverText.png"
 ];
 
 ;(function(exports) {

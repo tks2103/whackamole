@@ -1,12 +1,14 @@
 "use strict";
 
+var WIDTH = 800, HEIGHT = 500;
+
 ;(function(exports) {
   var Renderer = function(canvas, images) {
     this.canvas = canvas;
     this.images = images;
     this.ctx    = canvas.getContext('2d');
-    this.canvas.width       = 800;
-    this.canvas.height      = 450;
+    this.canvas.width       = WIDTH;
+    this.canvas.height      = HEIGHT;
     this.canvas.offsetLeft  = 0;
     this.canvas.offsetTop   = 0;
   };
@@ -22,6 +24,8 @@
           this.drawMole(entity);
         } else if(entity.type === "Text") {
           this.drawText(entity);
+        } else if(entity.type === "TextImg") {
+          this.drawTextImg(entity);
         } else {
           throw "Invalid Entity Type";
         }
@@ -58,10 +62,14 @@
                          hole.size.width, hole.size.height / 5);
     },
 
+    drawTextImg: function(textImg) {
+      var image = this.images[textImg.value];
+      this.ctx.drawImage(image, WIDTH / 2 - image.width / 2, HEIGHT - 110);
+    },
+
     drawText: function(text) {
-      this.ctx.fillStyle = "rgb(0,0,0)";
-      this.ctx.font = "" + text.size + "px Arial";
-      this.ctx.fillText(text.value, text.location.x, text.location.y)
+      var image = this.images[text.value];
+      this.ctx.drawImage(image, WIDTH / 2 - image.width / 2, HEIGHT - 110);
     },
 
     clear: function() {
